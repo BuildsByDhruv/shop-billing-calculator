@@ -32,7 +32,44 @@ def get_shipping_fee(amount):
     return 100.0
 
 
-items = [("Notebook", 120.0, 3), ("Pen", 15.5, 4), ("Backpack", 850.0, 1)]
+def get_positive_float():
+    while True:
+        price = float(input("Enter the price: "))
+        if price > 0:
+            return price
+        else:
+            print("The price must be greater than 0. Please enter proper price.")
+
+
+def get_positive_int():
+    while True:
+        qty = int(input("Enter the quantity: "))
+        if qty > 0:
+            return qty
+        else:
+            print("The quantity must be a whole number greater than 0. please enter proper value.")
+
+
+def read_items():
+    items = []
+    while True:
+        name = input("Enter the name of product, (type 'done' to submit) : ").strip()
+        if name == "":
+            print("name cannot be empty. please enter the proper name.")
+            continue
+        if items == [] and name.lower() == "done":
+            print("at least one item is needed. please enter the item.")
+            continue
+        if name.lower() == "done":
+            break
+        price = get_positive_float()
+        qty = get_positive_int()
+        item = (name, price, qty)
+        items.append(item)
+    return items
+
+
+items = read_items()
 
 member = ask_membership()
 subtotal = calculate_subtotal(items)
@@ -55,7 +92,7 @@ for name, price, quantity in items:
 print("-" * 42)
 print(f"{'Subtotal:':<32}{subtotal:>10.2f}")
 
-if member:
+if member and subtotal > 3000:
     print(f"{'Member Discount (10%):':<32}{-discount:>10.2f}")
     print(f"{'After Discount:':<32}{discounted_total:>10.2f}")
 

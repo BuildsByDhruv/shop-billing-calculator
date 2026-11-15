@@ -1,6 +1,6 @@
 # Shop Billing Calculator
 
-A command-line program that prints a clean, itemised bill for a small shop. It applies a member discount, GST and a shipping fee, following the shop's pricing rules.
+A command-line program for a small shop. The shopkeeper types in the items a customer buys, and the program prints a clean, itemised bill with a member discount, GST and a shipping fee.
 
 ## Pricing rules
 
@@ -20,9 +20,21 @@ Requires Python 3.
 python3 billing.py
 ```
 
-The program asks whether the customer is a member (`yes` or `no`) and prints the receipt.
+The program then:
+1. Asks for each item's name, price and quantity. Type `done` as the item name to finish.
+2. Asks whether the customer is a member (`yes` or `no`).
+3. Prints the receipt.
+
+### Input rules
+- The item name cannot be empty. Extra spaces are removed.
+- The price must be a number greater than 0.
+- The quantity must be a whole number greater than 0.
+- At least one item is required before `done` is accepted.
+- Item names longer than 15 characters continue on the following lines of the receipt.
 
 ## Example output
+
+Items: `Notebook` (120.00 x 3) and `Premium Leather Backpack` (1500.00 x 2), member: yes.
 
 ```text
 ==========================================
@@ -31,14 +43,16 @@ The program asks whether the customer is a member (`yes` or `no`) and prints the
 Item            Qty     Price      Total
 ------------------------------------------
 Notebook          3 x  120.00 =   360.00
-Pen               4 x   15.50 =    62.00
-Backpack          1 x  850.00 =   850.00
+Premium Leather   2 x 1500.00 =  3000.00
+ Backpack
 ------------------------------------------
-Subtotal:                          1272.00
-GST (18%):                          228.96
-Shipping Charges:                   100.00
+Subtotal:                          3360.00
+Member Discount (10%):             -336.00
+After Discount:                    3024.00
+GST (18%):                          544.32
+Shipping Charges:                    50.00
 ==========================================
-GRAND TOTAL:                       1600.96
+GRAND TOTAL:                       3618.32
 ==========================================
 ```
 
@@ -52,12 +66,15 @@ GRAND TOTAL:                       1600.96
 | `get_discount(subtotal, is_member)` | Returns the discount amount (0 if not eligible) |
 | `calculate_gst(amount, gst_rate=0.18)` | Returns the GST amount |
 | `get_shipping_fee(amount)` | Returns the shipping fee |
+| `get_positive_float()` | Asks until the user enters a number above 0 |
+| `get_positive_int()` | Asks until the user enters a whole number above 0 |
+| `read_items()` | Collects items as `(name, price, quantity)` tuples |
 
 Calculation functions only return values. Asking and printing happen outside them.
 
 ## Testing
 
-Tested by hand with real program output for these cases:
+Tested by hand, using real program output:
 
 | Case | Result |
 |---|---|
@@ -65,17 +82,27 @@ Tested by hand with real program output for these cases:
 | Member, subtotal 3500 | Discount of 350.00 |
 | Non-member, subtotal 3500 | No discount |
 | Subtotal 1900 | Shipping fee of 100 |
+| `done` typed before any item | Asks for an item again |
+| Empty item name | Rejected with a message |
+| Price or quantity of 0 or below | Rejected with a message |
+| Name with extra spaces | Spaces removed |
+| Name longer than 15 characters | Wrapped onto extra lines |
 
 ## Known limitations
 
-- Items are hard-coded in the program. Typing items in at run time is planned.
-- Typing letters where a number is expected will crash the program with a `ValueError`.
+- Typing letters in a number field, or a decimal such as `2.5` for the quantity, crashes the program with a `ValueError`.
 - Bills are not saved anywhere.
+- Long names are split by length, so a word can be cut in the middle.
+- Calculations are not covered by automated tests yet.
+
+## Open questions for the shopkeeper
+
+- Shipping is applied to every bill by the current rule, even a small in-store purchase. Should shipping apply only to deliveries?
 
 ## Roadmap
 
 - [x] Calculation functions and receipt
-- [ ] Enter items at run time, with input validation
+- [x] Enter items at run time, with input validation
 - [ ] Handle invalid input without crashing
 - [ ] Save bills to a file
 - [ ] Automated tests with pytest
