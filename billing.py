@@ -1,11 +1,11 @@
-def line_total(price, quantity):
-    return price * quantity
+def line_total(item):
+    return item["price"] * item["qty"]
 
 
 def calculate_subtotal(items):
     total = 0.0
-    for _, price, quantity in items:
-        total += line_total(price, quantity)
+    for item in items:
+        total += line_total(item)
     return round(total, 2)
 
 
@@ -47,7 +47,9 @@ def get_positive_int():
         if qty > 0:
             return qty
         else:
-            print("The quantity must be a whole number greater than 0. please enter proper value.")
+            print(
+                "The quantity must be a whole number greater than 0. please enter proper value."
+            )
 
 
 def read_items():
@@ -64,7 +66,7 @@ def read_items():
             break
         price = get_positive_float()
         qty = get_positive_int()
-        item = (name, price, qty)
+        item = {"name": name, "price": price, "qty": qty}
         items.append(item)
     return items
 
@@ -85,9 +87,11 @@ print("=" * 42)
 print(f"{'Item':<15} {'Qty':>3}   {'Price':>7}   {'Total':>8}")
 print("-" * 42)
 
-for name, price, quantity in items:
-    item_total = line_total(price, quantity)
-    print(f"{name:<15} {quantity:>3} x {price:>7.2f} = {item_total:>8.2f}")
+for item in items:
+    item_total = line_total(item)
+    print(
+        f"{item['name']:<15} {item['qty']:>3} x {item['price']:>7.2f} = {item_total:>8.2f}"
+    )
 
 print("-" * 42)
 print(f"{'Subtotal:':<32}{subtotal:>10.2f}")
