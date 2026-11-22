@@ -30,11 +30,10 @@ The program then:
 - The price must be a number greater than 0.
 - The quantity must be a whole number greater than 0.
 - At least one item is required before `done` is accepted.
-- Item names longer than 15 characters continue on the following lines of the receipt.
 
 ## Example output
 
-Items: `Notebook` (120.00 x 3) and `Premium Leather Backpack` (1500.00 x 2), member: yes.
+Items: `Notebook` (120.00 x 3) and `Backpack` (1500.00 x 2), member: yes.
 
 ```text
 ==========================================
@@ -43,8 +42,7 @@ Items: `Notebook` (120.00 x 3) and `Premium Leather Backpack` (1500.00 x 2), mem
 Item            Qty     Price      Total
 ------------------------------------------
 Notebook          3 x  120.00 =   360.00
-Premium Leather   2 x 1500.00 =  3000.00
- Backpack
+Backpack          2 x 1500.00 =  3000.00
 ------------------------------------------
 Subtotal:                          3360.00
 Member Discount (10%):             -336.00
@@ -58,9 +56,11 @@ GRAND TOTAL:                       3618.32
 
 ## Project structure
 
+Each item is a dictionary with the keys `name`, `price` and `qty`, for example `{"name": "Pen", "price": 10.5, "qty": 4}`.
+
 | Function | Purpose |
 |---|---|
-| `line_total(price, quantity)` | Price multiplied by quantity for one item |
+| `line_total(item)` | Price multiplied by quantity for one item |
 | `calculate_subtotal(items)` | Sum of all line totals |
 | `ask_membership()` | Asks whether the customer is a member |
 | `get_discount(subtotal, is_member)` | Returns the discount amount (0 if not eligible) |
@@ -68,7 +68,7 @@ GRAND TOTAL:                       3618.32
 | `get_shipping_fee(amount)` | Returns the shipping fee |
 | `get_positive_float()` | Asks until the user enters a number above 0 |
 | `get_positive_int()` | Asks until the user enters a whole number above 0 |
-| `read_items()` | Collects items as `(name, price, quantity)` tuples |
+| `read_items()` | Collects items as dictionaries with the keys `name`, `price` and `qty` |
 
 Calculation functions only return values. Asking and printing happen outside them.
 
@@ -86,13 +86,22 @@ Tested by hand, using real program output:
 | Empty item name | Rejected with a message |
 | Price or quantity of 0 or below | Rejected with a message |
 | Name with extra spaces | Spaces removed |
-| Name longer than 15 characters | Wrapped onto extra lines |
+
+### Refactor check
+
+When items moved from tuples to dictionaries, three cases were run before and after the change. The grand totals matched exactly.
+
+| Case | Grand total before | Grand total after |
+|---|---|---|
+| Normal: Notebook 120 x 3 and Pen 10.5 x 4, non-member | 574.36 | 574.36 |
+| Boundary: Bag 3000 x 1, member | 3590.00 | 3590.00 |
+| Invalid inputs, then Pen 10 x 2, non-member | 123.60 | 123.60 |
 
 ## Known limitations
 
 - Typing letters in a number field, or a decimal such as `2.5` for the quantity, crashes the program with a `ValueError`.
 - Bills are not saved anywhere.
-- Long names are split by length, so a word can be cut in the middle.
+- Item names longer than 15 characters are not wrapped, so they push the rest of that row out of line.
 - Calculations are not covered by automated tests yet.
 
 ## Open questions for the shopkeeper
@@ -103,6 +112,8 @@ Tested by hand, using real program output:
 
 - [x] Calculation functions and receipt
 - [x] Enter items at run time, with input validation
+- [x] Store items as dictionaries instead of tuples
+- [ ] Wrap long item names across receipt lines
 - [ ] Handle invalid input without crashing
 - [ ] Save bills to a file
 - [ ] Automated tests with pytest
